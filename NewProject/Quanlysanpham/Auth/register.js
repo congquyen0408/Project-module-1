@@ -24,7 +24,6 @@ registerForm.onsubmit = function (e) {
     let confirmPasswordInput = formEl.confirmPassword.value.trim();
     let agreeCheck = formEl.agreeCheck.checked;
 
-
     let isValid = true;
 
     if (lastNameInput === "") {
@@ -33,7 +32,6 @@ registerForm.onsubmit = function (e) {
     } else {
         lastNameError.style.display = "none";
     }
-
 
     if (firstNameInput === "") {
         firstNameError.style.display = "block";
@@ -105,17 +103,10 @@ registerForm.onsubmit = function (e) {
         return;
     }
 
-    let newId;
-    if (usersList.length > 0) {
-        newId = usersList[usersList.length - 1].id + 1;
-    } else {
-        newId = 1;
-    }
-
     let newUser = {
-        id: newId,
-        first_name: lastNameInput,
-        last_name: firstNameInput, 
+        id: Date.now(),
+        first_name: lastNameInput, 
+        last_name: firstNameInput,
         gender: 0,
         date_of_birth: "",
         address: "",
