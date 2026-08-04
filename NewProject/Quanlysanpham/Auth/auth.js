@@ -22,7 +22,6 @@ loginForm.onsubmit = function (e) {
     let emailInput = formEl.email.value.trim();
     let passwordInput = formEl.password.value.trim();
 
-
     let isValid = true;
 
     if (emailInput === "") {
@@ -48,6 +47,7 @@ loginForm.onsubmit = function (e) {
     } else {
         passwordError.style.display = "none";
     }
+
 
     if (!isValid) {
         alertBox.classList.add('d-none');
