@@ -15,27 +15,27 @@ function isValidEmail(email) {
 
 registerForm.onsubmit = function (e) {
     e.preventDefault();
+    let formEl = e.target;
 
-    let lastNameInput = document.querySelector('#lastName').value.trim();
-    let firstNameInput = document.querySelector('#firstName').value.trim();
-    let emailInput = document.querySelector('#email').value.trim();
-    let passwordInput = document.querySelector('#password').value.trim();
-    let confirmPasswordInput = document.querySelector('#confirmPassword').value.trim();
-    let agreeCheck = document.querySelector('#agreeCheck').checked;
+    let lastNameInput = formEl.lastName.value.trim();
+    let firstNameInput = formEl.firstName.value.trim();
+    let emailInput = formEl.email.value.trim();
+    let passwordInput = formEl.password.value.trim();
+    let confirmPasswordInput = formEl.confirmPassword.value.trim();
+    let agreeCheck = formEl.agreeCheck.checked;
 
-    let errorMessage = null;
+    let isValid = true;
 
     if (lastNameInput === "") {
         lastNameError.style.display = "block";
-        errorMessage = "Có lỗi";
+        isValid = false;
     } else {
         lastNameError.style.display = "none";
     }
 
-    
     if (firstNameInput === "") {
         firstNameError.style.display = "block";
-        errorMessage = "Có lỗi";
+        isValid = false;
     } else {
         firstNameError.style.display = "none";
     }
@@ -43,58 +43,52 @@ registerForm.onsubmit = function (e) {
     if (emailInput === "") {
         emailError.textContent = "Email không được để trống";
         emailError.style.display = "block";
-        errorMessage = "Có lỗi";
+        isValid = false;
     } else if (!isValidEmail(emailInput)) {
         emailError.textContent = "Email không đúng định dạng";
         emailError.style.display = "block";
-        errorMessage = "Có lỗi";
+        isValid = false;
     } else {
         emailError.style.display = "none";
     }
 
-
     if (passwordInput === "") {
         passwordError.textContent = "Mật khẩu không được để trống";
         passwordError.style.display = "block";
-        errorMessage = "Có lỗi";
+        isValid = false;
     } else if (passwordInput.length < 8) {
         passwordError.textContent = "Mật khẩu phải tối thiểu 8 ký tự";
         passwordError.style.display = "block";
-        errorMessage = "Có lỗi";
+        isValid = false;
     } else {
         passwordError.style.display = "none";
     }
 
-
     if (confirmPasswordInput === "") {
         confirmPasswordError.textContent = "Mật khẩu xác nhận không được để trống";
         confirmPasswordError.style.display = "block";
-        errorMessage = "Có lỗi";
+        isValid = false;
     } else if (confirmPasswordInput !== passwordInput) {
         confirmPasswordError.textContent = "Mật khẩu xác nhận không trùng khớp";
         confirmPasswordError.style.display = "block";
-        errorMessage = "Có lỗi";
+        isValid = false;
     } else {
         confirmPasswordError.style.display = "none";
     }
 
-
     if (!agreeCheck) {
         agreeError.style.display = "block";
-        errorMessage = "Có lỗi";
+        isValid = false;
     } else {
         agreeError.style.display = "none";
     }
 
-
-    if (errorMessage !== null) {
+    if (!isValid) {
         alertBox.classList.add('d-none');
         return;
     }
 
-
     let usersList = getUsers();
-
 
     let isEmailExist = false;
     for (let i = 0; i < usersList.length; i++) {
@@ -108,7 +102,6 @@ registerForm.onsubmit = function (e) {
         showAlert("Email này đã được sử dụng! Vui lòng chọn email khác.", "danger");
         return;
     }
-
 
     let newId;
     if (usersList.length > 0) {
