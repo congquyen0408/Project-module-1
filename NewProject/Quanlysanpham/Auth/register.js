@@ -105,7 +105,7 @@ registerForm.onsubmit = function (e) {
 
     let newUser = {
         id: Date.now(),
-        first_name: lastNameInput, 
+        first_name: lastNameInput,
         last_name: firstNameInput,
         gender: 0,
         date_of_birth: "",
