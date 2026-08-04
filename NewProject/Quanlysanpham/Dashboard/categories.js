@@ -1,3 +1,4 @@
+
 let currentUser = getUserLogin();
 
 if (currentUser === null) {
@@ -13,8 +14,10 @@ if (currentUser === null) {
     }
 
     let userAvatarElement = document.querySelector("#userAvatar");
-    if (userAvatarElement !== null && currentUser.avatar) {
-        userAvatarElement.src = currentUser.avatar;
+    if (userAvatarElement !== null) {
+        if (currentUser.avatar) {
+            userAvatarElement.src = currentUser.avatar;
+        }
     }
 }
 
@@ -52,19 +55,16 @@ let warningDeleteModal = new bootstrap.Modal(warningDeleteModalElement);
 let deleteConfirmModalElement = document.querySelector("#deleteConfirmModal");
 let deleteConfirmModal = new bootstrap.Modal(deleteConfirmModalElement);
 
-
 let successToastElement = document.querySelector("#successToast");
 let successToast = new bootstrap.Toast(successToastElement, { delay: 3000 });
 
 let deleteCategoryId = null;
-
 let editId = null;
 let sortOrder = null;
 
 
 function getFilteredCategories() {
     let result = [];
-
     let keyword = "";
     if (searchCategoryInput !== null) {
         keyword = searchCategoryInput.value.trim().toLowerCase();
@@ -77,29 +77,35 @@ function getFilteredCategories() {
 
     for (let i = 0; i < categoryList.length; i++) {
         let item = categoryList[i];
-
         let matchName = item.category_name.toLowerCase().includes(keyword);
         let matchStatus = true;
 
         if (statusFilter === "active") {
-            matchStatus = item.status === "ACTIVE";
+            if (item.status !== "ACTIVE") {
+                matchStatus = false;
+            }
         } else if (statusFilter === "inactive") {
-            matchStatus = item.status === "INACTIVE";
+            if (item.status !== "INACTIVE") {
+                matchStatus = false;
+            }
         }
 
-        if (matchName && matchStatus) {
+        if (matchName === true && matchStatus === true) {
             result.push(item);
         }
     }
 
+
     if (sortOrder !== null) {
         for (let i = 0; i < result.length - 1; i++) {
             for (let j = i + 1; j < result.length; j++) {
-                if (sortOrder === "asc" && result[i].category_name.localeCompare(result[j].category_name) > 0) {
+                let compareValue = result[i].category_name.localeCompare(result[j].category_name);
+
+                if (sortOrder === "asc" && compareValue > 0) {
                     let temp = result[i];
                     result[i] = result[j];
                     result[j] = temp;
-                } else if (sortOrder === "desc" && result[i].category_name.localeCompare(result[j].category_name) < 0) {
+                } else if (sortOrder === "desc" && compareValue < 0) {
                     let temp = result[i];
                     result[i] = result[j];
                     result[j] = temp;
@@ -117,45 +123,47 @@ function renderCategories() {
     let htmlContent = "";
 
     if (listToRender.length === 0) {
-        htmlContent = `<tr><td colspan="4" class="text-center text-muted py-4">Không tìm thấy danh mục phù hợp</td></tr>`;
+        htmlContent = '<tr><td colspan="4" class="text-center text-muted py-4">Không tìm thấy danh mục phù hợp</td></tr>';
     } else {
         for (let i = 0; i < listToRender.length; i++) {
             let item = listToRender[i];
-            htmlContent += `
-                <tr>
-                    <td>${item.category_code}</td>
-                    <td class="fw-medium">${item.category_name}</td>
-                    <td class="text-center">
-                        ${item.status === "ACTIVE"
-                    ? `<span class="badge-active">Đang hoạt động</span>`
-                    : `<span class="badge-inactive">Ngừng hoạt động</span>`
-                }
-                    </td>
-                    <td class="text-center">
-                        <button class="btn-action btn-delete" onclick="handleDelete(${item.id})">
-                            <i class="fa-regular fa-trash-can"></i>
-                        </button>
-                        <button class="btn-action btn-edit" onclick="handleEdit(${item.id})">
-                            <i class="fa-regular fa-pen-to-square"></i>
-                        </button>
-                    </td>
-                </tr>
-            `;
+
+            let statusBadge = "";
+            if (item.status === "ACTIVE") {
+                statusBadge = '<span class="badge-active">Đang hoạt động</span>';
+            } else {
+                statusBadge = '<span class="badge-inactive">Ngừng hoạt động</span>';
+            }
+
+            htmlContent += '<tr>' +
+                '<td>' + item.category_code + '</td>' +
+                '<td class="fw-medium">' + item.category_name + '</td>' +
+                '<td class="text-center">' + statusBadge + '</td>' +
+                '<td class="text-center">' +
+                    '<button class="btn-action btn-delete" onclick="handleDelete(' + item.id + ')">' +
+                        '<i class="fa-regular fa-trash-can"></i>' +
+                    '</button>' +
+                    '<button class="btn-action btn-edit" onclick="handleEdit(' + item.id + ')">' +
+                        '<i class="fa-regular fa-pen-to-square"></i>' +
+                    '</button>' +
+                '</td>' +
+            '</tr>';
         }
     }
 
-    listCategoryElement.innerHTML = htmlContent;
+    if (listCategoryElement !== null) {
+        listCategoryElement.innerHTML = htmlContent;
+    }
 }
 
-
 if (searchCategoryInput !== null) {
-    searchCategoryInput.onkeyup = function (event) {
+    searchCategoryInput.onkeyup = function () {
         renderCategories();
     };
 }
 
 if (filterStatusSelect !== null) {
-    filterStatusSelect.onchange = function (event) {
+    filterStatusSelect.onchange = function () {
         renderCategories();
     };
 }
@@ -163,16 +171,28 @@ if (filterStatusSelect !== null) {
 
 function handleSortByName() {
     let sortIcon = document.querySelector("#sortNameIcon");
+
     if (sortOrder === null || sortOrder === "desc") {
         sortOrder = "asc";
-        if (sortIcon !== null) sortIcon.className = "fa-solid fa-arrow-up-long ms-1";
+        if (sortIcon !== null) {
+            sortIcon.className = "fa-solid fa-arrow-up-long ms-1";
+        }
     } else {
         sortOrder = "desc";
-        if (sortIcon !== null) sortIcon.className = "fa-solid fa-arrow-down-long ms-1";
+        if (sortIcon !== null) {
+            sortIcon.className = "fa-solid fa-arrow-down-long ms-1";
+        }
     }
     renderCategories();
 }
 
+
+function resetValidation() {
+    codeError.style.display = "none";
+    titleError.style.display = "none";
+    categoryCodeInput.classList.remove("is-invalid");
+    categoryTitleInput.classList.remove("is-invalid");
+}
 
 btnOpenAddModal.onclick = function () {
     editId = null;
@@ -182,7 +202,6 @@ btnOpenAddModal.onclick = function () {
     resetValidation();
     categoryModal.show();
 };
-
 
 function handleEdit(id) {
     let foundCategory = null;
@@ -212,54 +231,63 @@ function handleEdit(id) {
     }
 }
 
-
 function saveCategory(event) {
     event.preventDefault();
 
-    let formEl = event.target;
-
-    let codeValue = formEl.categoryCode.value.trim();
-    let titleValue = formEl.categoryTitle.value.trim();
+    let codeValue = categoryCodeInput.value.trim();
+    let titleValue = categoryTitleInput.value.trim();
 
     let isCheckedActive = document.querySelector("#statusActive").checked;
-    let statusValue;
-    if (isCheckedActive) {
+    let statusValue = "INACTIVE";
+    if (isCheckedActive === true) {
         statusValue = "ACTIVE";
-    } else {
-        statusValue = "INACTIVE";
     }
 
-
-    let errorMessage = null;
+    let isValid = true;
 
     if (codeValue === "") {
+        codeError.textContent = "Mã danh mục không được để trống";
         codeError.style.display = "block";
         categoryCodeInput.classList.add("is-invalid");
-        errorMessage = "Có lỗi";
+        isValid = false;
     } else {
-        codeError.style.display = "none";
-        categoryCodeInput.classList.remove("is-invalid");
+        let isCodeDuplicate = false;
+        for (let i = 0; i < categoryList.length; i++) {
+            if (categoryList[i].category_code === codeValue && categoryList[i].id !== editId) {
+                isCodeDuplicate = true;
+                break;
+            }
+        }
+
+        if (isCodeDuplicate === true) {
+            codeError.textContent = "Mã danh mục đã tồn tại";
+            codeError.style.display = "block";
+            categoryCodeInput.classList.add("is-invalid");
+            isValid = false;
+        } else {
+            codeError.style.display = "none";
+            categoryCodeInput.classList.remove("is-invalid");
+        }
     }
 
     if (titleValue === "") {
+        titleError.textContent = "Tên danh mục không được để trống";
         titleError.style.display = "block";
         categoryTitleInput.classList.add("is-invalid");
-        errorMessage = "Có lỗi";
+        isValid = false;
     } else {
         titleError.style.display = "none";
         categoryTitleInput.classList.remove("is-invalid");
     }
 
-    if (errorMessage !== null) return;
-
+    if (isValid === false) {
+        return;
+    }
 
     if (editId === null) {
-        // Tính newId
-        let newId;
+        let newId = 1;
         if (categoryList.length > 0) {
             newId = categoryList[categoryList.length - 1].id + 1;
-        } else {
-            newId = 1;
         }
 
         let newCategory = {
@@ -283,27 +311,25 @@ function saveCategory(event) {
         }
     }
 
-
     localStorage.setItem("categories", JSON.stringify(categoryList));
     renderCategories();
     categoryModal.hide();
+    successToast.show();
 }
-
 
 categoryForm.onsubmit = saveCategory;
 
 
 function handleDelete(id) {
-    let productList = [];
-    if (typeof getProducts === "function") {
-        productList = getProducts();
-    } else {
-        productList = JSON.parse(localStorage.getItem("products")) || [];
-    }
+    let productList = getProducts();
 
     let hasProduct = false;
     for (let i = 0; i < productList.length; i++) {
-        let catIdInProduct = productList[i].category_id !== undefined ? productList[i].category_id : productList[i].categoryId;
+        let catIdInProduct = productList[i].category_id;
+        if (catIdInProduct === undefined) {
+            catIdInProduct = productList[i].categoryId;
+        }
+
         if (Number(catIdInProduct) === Number(id)) {
             hasProduct = true;
             break;
@@ -318,16 +344,16 @@ function handleDelete(id) {
         }
     }
 
-    if (hasProduct) {
+    if (hasProduct === true) {
         let warningNameEl = document.querySelector("#warningCategoryName");
-        if (warningNameEl !== null && foundCategory) {
+        if (warningNameEl !== null && foundCategory !== null) {
             warningNameEl.textContent = foundCategory.category_name;
         }
         warningDeleteModal.show();
     } else {
         deleteCategoryId = id;
         let deleteNameEl = document.querySelector("#deleteCategoryName");
-        if (deleteNameEl !== null && foundCategory) {
+        if (deleteNameEl !== null && foundCategory !== null) {
             deleteNameEl.textContent = foundCategory.category_name;
         }
         deleteConfirmModal.show();
@@ -352,18 +378,10 @@ if (btnConfirmDeleteCategory !== null) {
 
                 deleteConfirmModal.hide();
                 renderCategories();
-
                 successToast.show();
             }
         }
     };
-}
-
-function resetValidation() {
-    codeError.style.display = "none";
-    titleError.style.display = "none";
-    categoryCodeInput.classList.remove("is-invalid");
-    categoryTitleInput.classList.remove("is-invalid");
 }
 
 renderCategories();
