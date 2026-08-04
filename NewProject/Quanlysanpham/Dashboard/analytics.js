@@ -1,12 +1,14 @@
 let currentUser = getUserLogin();
 
+
 if (currentUser === null) {
     window.location.href = "../Auth/auth.html";
 } else {
+
     let userNameElement = document.querySelector("#userName");
     if (userNameElement !== null) {
         if (currentUser.first_name && currentUser.last_name) {
-            userNameElement.textContent = currentUser.last_name + " " + currentUser.first_name;
+            userNameElement.textContent = `${currentUser.first_name} ${currentUser.last_name}`;
         } else {
             userNameElement.textContent = currentUser.email;
         }
@@ -17,6 +19,7 @@ if (currentUser === null) {
         userAvatarElement.src = currentUser.avatar;
     }
 }
+
 
 let logoutButtons = document.querySelectorAll(".btn-logout-action");
 for (let i = 0; i < logoutButtons.length; i++) {
@@ -35,7 +38,6 @@ function renderAnalytics() {
     let usersList = getUsers();
     let categoryList = getCategories();
     let productList = getProducts();
-
 
     analyticsContent.innerHTML = `
         <div class="row g-4">
