@@ -355,7 +355,6 @@
                     </button>
                 </div>
 
-
                 <div class="d-flex justify-content-end align-items-center gap-2 mb-3">
                     <select id="filterCategory" class="form-select w-auto"
                         style="border-radius: 8px; font-size: 0.875rem;">
@@ -435,15 +434,13 @@
                                 <label for="productCode" class="form-label">Mã sản phẩm <span
                                         class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="productCode" name="productCode">
-                                <small id="codeError" class="text-danger" style="display: none;">Mã sản phẩm không được
-                                    để trống</small>
+                                <small id="codeError" class="error-msg">Mã sản phẩm không được để trống</small>
                             </div>
                             <div class="col-md-6">
                                 <label for="productName" class="form-label">Tên sản phẩm <span
                                         class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="productName" name="productName">
-                                <small id="nameError" class="text-danger" style="display: none;">Tên sản phẩm không được
-                                    để trống</small>
+                                <small id="nameError" class="error-msg">Tên sản phẩm không được để trống</small>
                             </div>
                         </div>
 
@@ -453,8 +450,7 @@
                                         class="text-danger">*</span></label>
                                 <select class="form-select" id="categorySelectModal" name="categoryId">
                                 </select>
-                                <small id="categoryError" class="text-danger" style="display: none;">Vui lòng chọn danh
-                                    mục</small>
+                                <small id="categoryError" class="error-msg">Vui lòng chọn danh mục</small>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label d-block">Trạng thái</label>
@@ -510,6 +506,7 @@
         </div>
     </div>
 
+
     <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" style="max-width: 400px;">
             <div class="modal-content border-0 p-3 rounded-4">
@@ -542,7 +539,7 @@
                     <i class="fa-solid fa-circle-check text-success fs-4"></i>
                     <div>
                         <strong class="d-block text-white fw-bold">Thành công</strong>
-                        <small class="text-white-50">Xóa sản phẩm thành công</small>
+                        <small class="text-white-50" id="toastMessage">Xóa sản phẩm thành công</small>
                     </div>
                 </div>
                 <button type="button" class="btn-close btn-close-white ms-auto me-2 m-auto" data-bs-dismiss="toast"
