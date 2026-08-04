@@ -65,7 +65,6 @@ loginForm.onsubmit = function (e) {
     }
 
     if (foundUser !== null) {
-        // Kiểm tra trạng thái tài khoản
         if (foundUser.status === false) {
             showAlert("Tài khoản của bạn đã bị khóa!", "danger");
             return;
