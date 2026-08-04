@@ -1,10 +1,27 @@
+let loginForm = document.querySelector('#loginForm');
+let alertBox = document.querySelector('#alertBox');
+
+let emailError = document.querySelector('#emailError');
+let passwordError = document.querySelector('#passwordError');
+
+function isValidEmail(email) {
+    let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+function showAlert(message, type) {
+    alertBox.className = `alert alert-${type}`;
+    alertBox.textContent = message;
+    alertBox.classList.remove('d-none');
+}
+
 loginForm.onsubmit = function (e) {
     e.preventDefault();
-    
     let formEl = e.target;
 
     let emailInput = formEl.email.value.trim();
     let passwordInput = formEl.password.value.trim();
+
 
     let isValid = true;
 
@@ -20,9 +37,12 @@ loginForm.onsubmit = function (e) {
         emailError.style.display = "none";
     }
 
-    
     if (passwordInput === "") {
         passwordError.textContent = "Mật khẩu không được để trống";
+        passwordError.style.display = "block";
+        isValid = false;
+    } else if (passwordInput.length < 6) {
+        passwordError.textContent = "Mật khẩu phải tối thiểu 6 ký tự";
         passwordError.style.display = "block";
         isValid = false;
     } else {
@@ -33,7 +53,6 @@ loginForm.onsubmit = function (e) {
         alertBox.classList.add('d-none');
         return;
     }
-
 
     let usersList = getUsers();
 
@@ -46,6 +65,7 @@ loginForm.onsubmit = function (e) {
     }
 
     if (foundUser !== null) {
+        // Kiểm tra trạng thái tài khoản
         if (foundUser.status === false) {
             showAlert("Tài khoản của bạn đã bị khóa!", "danger");
             return;
