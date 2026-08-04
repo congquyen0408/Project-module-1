@@ -5,7 +5,7 @@ let defaultUser = {
     gender: 0,
     date_of_birth: "20/02/2023",
     address: "Thanh Xuân, Hà Nội",
-    avatar: "https://i.pravatar.cc/100?img=12",
+    avatar: "https://example.com/avatar.jpg",
     email: "nvnam@gmail.com",
     password: "123456",
     status: true,
