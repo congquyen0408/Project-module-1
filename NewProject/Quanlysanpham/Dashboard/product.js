@@ -1,4 +1,3 @@
-
 let currentUser = getUserLogin();
 
 if (currentUser === null) {
@@ -27,7 +26,6 @@ if (btnLogout !== null) {
     };
 }
 
-
 let productList = getProducts();
 let categoryList = getCategories();
 
@@ -35,7 +33,7 @@ let listProductElement = document.querySelector("#listProduct");
 let btnOpenAddModal = document.querySelector("#btnOpenAddModal");
 let searchProductInput = document.querySelector("#searchProduct");
 let filterCategorySelect = document.querySelector("#filterCategory");
-let filterStatusSelect = document.querySelector("#filterStatus"); // Bộ lọc trạng thái
+let filterStatusSelect = document.querySelector("#filterStatus");
 
 let productModalElement = document.querySelector("#productModal");
 let productModal = new bootstrap.Modal(productModalElement);
@@ -44,7 +42,6 @@ let modalTitle = document.querySelector("#modalTitle");
 let productForm = document.querySelector("#productForm");
 let categorySelectModal = document.querySelector("#categorySelectModal");
 let btnSave = document.querySelector("#btnSave");
-
 
 let codeError = document.querySelector("#codeError");
 let nameError = document.querySelector("#nameError");
@@ -58,25 +55,23 @@ let successToastElement = document.querySelector("#successToast");
 let successToast = new bootstrap.Toast(successToastElement, { delay: 3000 });
 
 let deleteId = null;
-let btnConfirmDelete = document.querySelector("#btnConfirmDelete");
-
 let editId = null;
 let sortOrder = null;
 
 
 function renderCategoryOptions() {
     if (filterCategorySelect !== null) {
-        let filterHtml = `<option value="all">Lọc theo danh mục</option>`;
+        let filterHtml = '<option value="all">Lọc theo danh mục</option>';
         for (let i = 0; i < categoryList.length; i++) {
-            filterHtml += `<option value="${categoryList[i].id}">${categoryList[i].category_name}</option>`;
+            filterHtml += '<option value="' + categoryList[i].id + '">' + categoryList[i].category_name + '</option>';
         }
         filterCategorySelect.innerHTML = filterHtml;
     }
 
     if (categorySelectModal !== null) {
-        let modalHtml = `<option value="">-- Chọn danh mục --</option>`;
+        let modalHtml = '<option value="">-- Chọn danh mục --</option>';
         for (let i = 0; i < categoryList.length; i++) {
-            modalHtml += `<option value="${categoryList[i].id}">${categoryList[i].category_name}</option>`;
+            modalHtml += '<option value="' + categoryList[i].id + '">' + categoryList[i].category_name + '</option>';
         }
         categorySelectModal.innerHTML = modalHtml;
     }
@@ -108,17 +103,27 @@ function getFilteredProducts() {
 
         let matchCategory = true;
         if (categoryFilter !== "all") {
-            matchCategory = item.category_id == categoryFilter;
+            let itemCatId = item.category_id;
+            if (itemCatId === undefined) {
+                itemCatId = item.categoryId;
+            }
+            if (Number(itemCatId) !== Number(categoryFilter)) {
+                matchCategory = false;
+            }
         }
 
         let matchStatus = true;
         if (statusFilter === "active") {
-            matchStatus = item.status === "ACTIVE";
+            if (item.status !== "ACTIVE") {
+                matchStatus = false;
+            }
         } else if (statusFilter === "inactive") {
-            matchStatus = item.status === "INACTIVE";
+            if (item.status !== "INACTIVE") {
+                matchStatus = false;
+            }
         }
 
-        if (matchName && matchCategory && matchStatus) {
+        if (matchName === true && matchCategory === true && matchStatus === true) {
             result.push(item);
         }
     }
@@ -126,11 +131,13 @@ function getFilteredProducts() {
     if (sortOrder !== null) {
         for (let i = 0; i < result.length - 1; i++) {
             for (let j = i + 1; j < result.length; j++) {
-                if (sortOrder === "asc" && result[i].product_name.localeCompare(result[j].product_name) > 0) {
+                let compareValue = result[i].product_name.localeCompare(result[j].product_name);
+
+                if (sortOrder === "asc" && compareValue > 0) {
                     let temp = result[i];
                     result[i] = result[j];
                     result[j] = temp;
-                } else if (sortOrder === "desc" && result[i].product_name.localeCompare(result[j].product_name) < 0) {
+                } else if (sortOrder === "desc" && compareValue < 0) {
                     let temp = result[i];
                     result[i] = result[j];
                     result[j] = temp;
@@ -148,56 +155,62 @@ function renderProducts() {
     let htmlContent = "";
 
     if (listToRender.length === 0) {
-        htmlContent = `<tr><td colspan="7" class="text-center text-muted py-4">Không tìm thấy sản phẩm phù hợp</td></tr>`;
+        htmlContent = '<tr><td colspan="7" class="text-center text-muted py-4">Không tìm thấy sản phẩm phù hợp</td></tr>';
     } else {
         for (let i = 0; i < listToRender.length; i++) {
             let item = listToRender[i];
-            let discountValue = item.discount ? item.discount : 0;
 
-            htmlContent += `
-                <tr>
-                    <td>${item.product_code}</td>
-                    <td class="fw-medium">${item.product_name}</td>
-                    <td>${Number(item.price).toLocaleString('vi-VN')} đ</td>
-                    <td>${item.stock}</td>
-                    <td>${discountValue}%</td>
-                    <td style="text-align: center;">
-                        ${item.status === "ACTIVE"
-                    ? `<span class="badge-active">Đang hoạt động</span>`
-                    : `<span class="badge-inactive">Ngừng hoạt động</span>`
-                }
-                    </td>
-                    <td style="text-align: center;">
-                        <button class="btn-action btn-delete" onclick="handleDelete(${item.id})">
-                            <i class="fa-regular fa-trash-can"></i>
-                        </button>
-                        <button class="btn-action btn-edit" onclick="handleEdit(${item.id})">
-                            <i class="fa-regular fa-pen-to-square"></i>
-                        </button>
-                    </td>
-                </tr>
-            `;
+            let discountValue = 0;
+            if (item.discount) {
+                discountValue = item.discount;
+            }
+
+            let statusBadge = "";
+            if (item.status === "ACTIVE") {
+                statusBadge = '<span class="badge-active">Đang hoạt động</span>';
+            } else {
+                statusBadge = '<span class="badge-inactive">Ngừng hoạt động</span>';
+            }
+
+            htmlContent += '<tr>' +
+                '<td>' + item.product_code + '</td>' +
+                '<td class="fw-medium">' + item.product_name + '</td>' +
+                '<td>' + Number(item.price).toLocaleString('vi-VN') + ' đ</td>' +
+                '<td>' + item.stock + '</td>' +
+                '<td>' + discountValue + '%</td>' +
+                '<td style="text-align: center;">' + statusBadge + '</td>' +
+                '<td style="text-align: center;">' +
+                    '<button class="btn-action btn-delete" onclick="handleDelete(' + item.id + ')">' +
+                        '<i class="fa-regular fa-trash-can"></i>' +
+                    '</button>' +
+                    '<button class="btn-action btn-edit" onclick="handleEdit(' + item.id + ')">' +
+                        '<i class="fa-regular fa-pen-to-square"></i>' +
+                    '</button>' +
+                '</td>' +
+            '</tr>';
         }
     }
 
-    listProductElement.innerHTML = htmlContent;
+    if (listProductElement !== null) {
+        listProductElement.innerHTML = htmlContent;
+    }
 }
 
 
 if (searchProductInput !== null) {
-    searchProductInput.onkeyup = function (event) {
+    searchProductInput.onkeyup = function () {
         renderProducts();
     };
 }
 
 if (filterCategorySelect !== null) {
-    filterCategorySelect.onchange = function (event) {
+    filterCategorySelect.onchange = function () {
         renderProducts();
     };
 }
 
 if (filterStatusSelect !== null) {
-    filterStatusSelect.onchange = function (event) {
+    filterStatusSelect.onchange = function () {
         renderProducts();
     };
 }
@@ -205,16 +218,38 @@ if (filterStatusSelect !== null) {
 
 function handleSortByName() {
     let sortIcon = document.querySelector("#sortNameIcon");
+
     if (sortOrder === null || sortOrder === "desc") {
         sortOrder = "asc";
-        if (sortIcon !== null) sortIcon.className = "fa-solid fa-arrow-up-long ms-1";
+        if (sortIcon !== null) {
+            sortIcon.className = "fa-solid fa-arrow-up-long ms-1";
+        }
     } else {
         sortOrder = "desc";
-        if (sortIcon !== null) sortIcon.className = "fa-solid fa-arrow-down-long ms-1";
+        if (sortIcon !== null) {
+            sortIcon.className = "fa-solid fa-arrow-down-long ms-1";
+        }
     }
     renderProducts();
 }
 
+
+function resetValidation() {
+    if (codeError !== null) codeError.style.display = "none";
+    if (nameError !== null) nameError.style.display = "none";
+    if (categoryError !== null) categoryError.style.display = "none";
+    if (imageError !== null) imageError.style.display = "none";
+
+    let codeInput = document.querySelector("#productCode");
+    let nameInput = document.querySelector("#productName");
+    let catInput = document.querySelector("#categorySelectModal");
+    let imgInput = document.querySelector("#image");
+
+    if (codeInput !== null) codeInput.classList.remove("is-invalid");
+    if (nameInput !== null) nameInput.classList.remove("is-invalid");
+    if (catInput !== null) catInput.classList.remove("is-invalid");
+    if (imgInput !== null) imgInput.classList.remove("is-invalid");
+}
 
 btnOpenAddModal.onclick = function () {
     editId = null;
@@ -225,11 +260,10 @@ btnOpenAddModal.onclick = function () {
     productModal.show();
 };
 
-
 function handleEdit(id) {
     let foundProduct = null;
     for (let i = 0; i < productList.length; i++) {
-        if (productList[i].id === id) {
+        if (Number(productList[i].id) === Number(id)) {
             foundProduct = productList[i];
             break;
         }
@@ -243,17 +277,41 @@ function handleEdit(id) {
 
         document.querySelector("#productCode").value = foundProduct.product_code;
         document.querySelector("#productName").value = foundProduct.product_name;
-        document.querySelector("#categorySelectModal").value = foundProduct.category_id;
+
+        let catId = foundProduct.category_id;
+        if (catId === undefined) {
+            catId = foundProduct.categoryId;
+        }
+        document.querySelector("#categorySelectModal").value = catId;
+
         document.querySelector("#stock").value = foundProduct.stock;
         document.querySelector("#price").value = foundProduct.price;
-        if (document.querySelector("#discount")) {
-            document.querySelector("#discount").value = foundProduct.discount || 0;
+
+        let discountEl = document.querySelector("#discount");
+        if (discountEl !== null) {
+            let discVal = 0;
+            if (foundProduct.discount) {
+                discVal = foundProduct.discount;
+            }
+            discountEl.value = discVal;
         }
-        if (document.querySelector("#image")) {
-            document.querySelector("#image").value = foundProduct.image || "";
+
+        let imageEl = document.querySelector("#image");
+        if (imageEl !== null) {
+            let imgVal = "";
+            if (foundProduct.image) {
+                imgVal = foundProduct.image;
+            }
+            imageEl.value = imgVal;
         }
-        if (document.querySelector("#description")) {
-            document.querySelector("#description").value = foundProduct.description || "";
+
+        let descEl = document.querySelector("#description");
+        if (descEl !== null) {
+            let descVal = "";
+            if (foundProduct.description) {
+                descVal = foundProduct.description;
+            }
+            descEl.value = descVal;
         }
 
         if (foundProduct.status === "ACTIVE") {
@@ -266,77 +324,98 @@ function handleEdit(id) {
     }
 }
 
-
 function saveProduct(event) {
     event.preventDefault();
 
-    let formEl = event.target;
+    let codeInput = document.querySelector("#productCode");
+    let nameInput = document.querySelector("#productName");
+    let categoryInput = document.querySelector("#categorySelectModal");
+    let stockInput = document.querySelector("#stock");
+    let priceInput = document.querySelector("#price");
+    let discountInput = document.querySelector("#discount");
+    let imageInput = document.querySelector("#image");
+    let descInput = document.querySelector("#description");
 
-    let codeValue = formEl.productCode ? formEl.productCode.value.trim() : "";
-    let nameValue = formEl.productName ? formEl.productName.value.trim() : "";
-    let categoryValue = formEl.categoryId ? formEl.categoryId.value : "";
-    let stockValue = formEl.stock ? formEl.stock.value : 0;
-    let priceValue = formEl.price ? formEl.price.value : 0;
-    let discountValue = formEl.discount ? formEl.discount.value : 0;
-    let imageValue = formEl.image ? formEl.image.value.trim() : "";
-    let descValue = formEl.description ? formEl.description.value.trim() : "";
+    let codeValue = codeInput.value.trim();
+    let nameValue = nameInput.value.trim();
+    let categoryValue = categoryInput.value;
+    let stockValue = Number(stockInput.value);
+    let priceValue = Number(priceInput.value);
+    let discountValue = Number(discountInput.value);
+    let imageValue = imageInput.value.trim();
+    let descValue = descInput.value.trim();
 
     let isCheckedActive = document.querySelector("#statusActive").checked;
-    let statusValue;
-    if (isCheckedActive) {
+    let statusValue = "INACTIVE";
+    if (isCheckedActive === true) {
         statusValue = "ACTIVE";
-    } else {
-        statusValue = "INACTIVE";
     }
 
-
-    let errorMessage = null;
+    let isValid = true;
 
     if (codeValue === "") {
-        if (codeError !== null) codeError.style.display = "block";
-        if (formEl.productCode) formEl.productCode.classList.add("is-invalid");
-        errorMessage = "Có lỗi";
+        codeError.style.display = "block";
+        codeInput.classList.add("is-invalid");
+        isValid = false;
     } else {
-        if (codeError !== null) codeError.style.display = "none";
-        if (formEl.productCode) formEl.productCode.classList.remove("is-invalid");
+        let isCodeDuplicate = false;
+        for (let i = 0; i < productList.length; i++) {
+            if (productList[i].product_code === codeValue && Number(productList[i].id) !== Number(editId)) {
+                isCodeDuplicate = true;
+                break;
+            }
+        }
+
+        if (isCodeDuplicate === true) {
+            codeError.textContent = "Mã sản phẩm đã tồn tại";
+            codeError.style.display = "block";
+            codeInput.classList.add("is-invalid");
+            isValid = false;
+        } else {
+            codeError.style.display = "none";
+            codeInput.classList.remove("is-invalid");
+        }
     }
+
 
     if (nameValue === "") {
-        if (nameError !== null) nameError.style.display = "block";
-        if (formEl.productName) formEl.productName.classList.add("is-invalid");
-        errorMessage = "Có lỗi";
+        nameError.style.display = "block";
+        nameInput.classList.add("is-invalid");
+        isValid = false;
     } else {
-        if (nameError !== null) nameError.style.display = "none";
-        if (formEl.productName) formEl.productName.classList.remove("is-invalid");
+        nameError.style.display = "none";
+        nameInput.classList.remove("is-invalid");
     }
+
 
     if (categoryValue === "") {
-        if (categoryError !== null) categoryError.style.display = "block";
-        if (formEl.categoryId) formEl.categoryId.classList.add("is-invalid");
-        errorMessage = "Có lỗi";
+        categoryError.style.display = "block";
+        categoryInput.classList.add("is-invalid");
+        isValid = false;
     } else {
-        if (categoryError !== null) categoryError.style.display = "none";
-        if (formEl.categoryId) formEl.categoryId.classList.remove("is-invalid");
+        categoryError.style.display = "none";
+        categoryInput.classList.remove("is-invalid");
     }
+
 
     if (imageValue === "") {
-        if (imageError !== null) imageError.style.display = "block";
-        if (formEl.image) formEl.image.classList.add("is-invalid");
-        errorMessage = "Có lỗi";
+        imageError.style.display = "block";
+        imageInput.classList.add("is-invalid");
+        isValid = false;
     } else {
-        if (imageError !== null) imageError.style.display = "none";
-        if (formEl.image) formEl.image.classList.remove("is-invalid");
+        imageError.style.display = "none";
+        imageInput.classList.remove("is-invalid");
     }
 
-    if (errorMessage !== null) return;
+    if (isValid === false) {
+        return;
+    }
 
 
     if (editId === null) {
-        let newId;
+        let newId = 1;
         if (productList.length > 0) {
-            newId = productList[productList.length - 1].id + 1;
-        } else {
-            newId = 1;
+            newId = Number(productList[productList.length - 1].id) + 1;
         }
 
         let newProduct = {
@@ -344,28 +423,28 @@ function saveProduct(event) {
             product_code: codeValue,
             product_name: nameValue,
             category_id: Number(categoryValue),
-            stock: Number(stockValue),
-            price: Number(priceValue),
-            discount: Number(discountValue),
+            price: priceValue,
+            stock: stockValue,
+            discount: discountValue,
             image: imageValue,
-            status: statusValue,
             description: descValue,
+            status: statusValue,
             created_at: new Date().toISOString()
         };
 
         productList.push(newProduct);
     } else {
         for (let i = 0; i < productList.length; i++) {
-            if (productList[i].id === editId) {
+            if (Number(productList[i].id) === Number(editId)) {
                 productList[i].product_code = codeValue;
                 productList[i].product_name = nameValue;
                 productList[i].category_id = Number(categoryValue);
-                productList[i].stock = Number(stockValue);
-                productList[i].price = Number(priceValue);
-                productList[i].discount = Number(discountValue);
+                productList[i].price = priceValue;
+                productList[i].stock = stockValue;
+                productList[i].discount = discountValue;
                 productList[i].image = imageValue;
-                productList[i].status = statusValue;
                 productList[i].description = descValue;
+                productList[i].status = statusValue;
                 break;
             }
         }
@@ -374,6 +453,16 @@ function saveProduct(event) {
     localStorage.setItem("products", JSON.stringify(productList));
     renderProducts();
     productModal.hide();
+
+    let toastMsg = document.querySelector("#toastMessage");
+    if (toastMsg !== null) {
+        if (editId === null) {
+            toastMsg.textContent = "Thêm mới sản phẩm thành công";
+        } else {
+            toastMsg.textContent = "Cập nhật sản phẩm thành công";
+        }
+    }
+    successToast.show();
 }
 
 productForm.onsubmit = saveProduct;
@@ -382,7 +471,7 @@ productForm.onsubmit = saveProduct;
 function handleDelete(id) {
     let foundProduct = null;
     for (let i = 0; i < productList.length; i++) {
-        if (productList[i].id == id) {
+        if (Number(productList[i].id) === Number(id)) {
             foundProduct = productList[i];
             break;
         }
@@ -390,23 +479,21 @@ function handleDelete(id) {
 
     if (foundProduct !== null) {
         deleteId = id;
-        
-        let nameToShow = foundProduct.product_name || foundProduct.name || "";
-        let nameEl = document.querySelector("#deleteProductName");
-        if (nameEl !== null) {
-            nameEl.textContent = nameToShow;
+        let deleteNameEl = document.querySelector("#deleteProductName");
+        if (deleteNameEl !== null) {
+            deleteNameEl.textContent = foundProduct.product_name;
         }
         deleteConfirmModal.show();
     }
 }
 
-
+let btnConfirmDelete = document.querySelector("#btnConfirmDelete");
 if (btnConfirmDelete !== null) {
     btnConfirmDelete.onclick = function () {
         if (deleteId !== null) {
             let deleteIndex = -1;
             for (let i = 0; i < productList.length; i++) {
-                if (productList[i].id === deleteId) {
+                if (Number(productList[i].id) === Number(deleteId)) {
                     deleteIndex = i;
                     break;
                 }
@@ -418,24 +505,16 @@ if (btnConfirmDelete !== null) {
 
                 deleteConfirmModal.hide();
                 renderProducts();
+
+                let toastMsg = document.querySelector("#toastMessage");
+                if (toastMsg !== null) {
+                    toastMsg.textContent = "Xóa sản phẩm thành công";
+                }
                 successToast.show();
             }
         }
     };
 }
-
-function resetValidation() {
-    if (codeError) codeError.style.display = "none";
-    if (nameError) nameError.style.display = "none";
-    if (categoryError) categoryError.style.display = "none";
-    if (imageError) imageError.style.display = "none";
-
-    let inputs = productForm.querySelectorAll(".is-invalid");
-    for (let i = 0; i < inputs.length; i++) {
-        inputs[i].classList.remove("is-invalid");
-    }
-}
-
 
 renderCategoryOptions();
 renderProducts();
