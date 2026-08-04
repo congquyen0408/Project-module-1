@@ -24,6 +24,7 @@ registerForm.onsubmit = function (e) {
     let confirmPasswordInput = formEl.confirmPassword.value.trim();
     let agreeCheck = formEl.agreeCheck.checked;
 
+
     let isValid = true;
 
     if (lastNameInput === "") {
@@ -32,6 +33,7 @@ registerForm.onsubmit = function (e) {
     } else {
         lastNameError.style.display = "none";
     }
+
 
     if (firstNameInput === "") {
         firstNameError.style.display = "block";
@@ -56,8 +58,8 @@ registerForm.onsubmit = function (e) {
         passwordError.textContent = "Mật khẩu không được để trống";
         passwordError.style.display = "block";
         isValid = false;
-    } else if (passwordInput.length < 8) {
-        passwordError.textContent = "Mật khẩu phải tối thiểu 8 ký tự";
+    } else if (passwordInput.length < 6) {
+        passwordError.textContent = "Mật khẩu phải tối thiểu 6 ký tự";
         passwordError.style.display = "block";
         isValid = false;
     } else {
@@ -112,15 +114,14 @@ registerForm.onsubmit = function (e) {
 
     let newUser = {
         id: newId,
-        first_name: firstNameInput,
-        last_name: lastNameInput,
+        first_name: lastNameInput,
+        last_name: firstNameInput, 
         gender: 0,
         date_of_birth: "",
         address: "",
         avatar: "https://i.pravatar.cc/100?img=12",
         email: emailInput,
         password: passwordInput,
-        status: true,
         phone_number: "",
         created_at: new Date().toISOString()
     };
@@ -128,7 +129,7 @@ registerForm.onsubmit = function (e) {
     usersList.push(newUser);
     localStorage.setItem("users", JSON.stringify(usersList));
 
-    showAlert("Đăng ký tài khoản thành công! ", "success");
+    showAlert("Đăng ký tài khoản thành công!", "success");
 
     setTimeout(function () {
         window.location.href = "auth.html";
