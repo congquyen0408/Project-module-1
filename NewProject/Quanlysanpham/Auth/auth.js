@@ -1,46 +1,35 @@
-let loginForm = document.querySelector('#loginForm');
-let alertBox = document.querySelector('#alertBox');
-
-let emailError = document.querySelector('#emailError');
-let passwordError = document.querySelector('#passwordError');
-
-function isValidEmail(email) {
-    let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-}
-
 loginForm.onsubmit = function (e) {
     e.preventDefault();
+    
+    let formEl = e.target;
 
-    let emailInput = document.querySelector('#email').value.trim();
-    let passwordInput = document.querySelector('#password').value.trim();
+    let emailInput = formEl.email.value.trim();
+    let passwordInput = formEl.password.value.trim();
 
-    let errorMessage = null;
-
+    let isValid = true;
 
     if (emailInput === "") {
         emailError.textContent = "Email không được để trống";
         emailError.style.display = "block";
-        errorMessage = "Có lỗi";
+        isValid = false;
     } else if (!isValidEmail(emailInput)) {
         emailError.textContent = "Email không đúng định dạng";
         emailError.style.display = "block";
-        errorMessage = "Có lỗi";
+        isValid = false;
     } else {
         emailError.style.display = "none";
     }
 
-
+    
     if (passwordInput === "") {
         passwordError.textContent = "Mật khẩu không được để trống";
         passwordError.style.display = "block";
-        errorMessage = "Có lỗi";
+        isValid = false;
     } else {
         passwordError.style.display = "none";
     }
 
-
-    if (errorMessage !== null) {
+    if (!isValid) {
         alertBox.classList.add('d-none');
         return;
     }
@@ -56,7 +45,6 @@ loginForm.onsubmit = function (e) {
         }
     }
 
-
     if (foundUser !== null) {
         if (foundUser.status === false) {
             showAlert("Tài khoản của bạn đã bị khóa!", "danger");
@@ -64,7 +52,6 @@ loginForm.onsubmit = function (e) {
         }
 
         localStorage.setItem("userLogin", JSON.stringify(foundUser));
-
         showAlert("Đăng nhập thành công!", "success");
 
         setTimeout(function () {
@@ -74,9 +61,3 @@ loginForm.onsubmit = function (e) {
         showAlert("Email hoặc mật khẩu không chính xác!", "danger");
     }
 };
-
-function showAlert(message, type) {
-    alertBox.className = `alert alert-${type}`;
-    alertBox.textContent = message;
-    alertBox.classList.remove('d-none');
-}
